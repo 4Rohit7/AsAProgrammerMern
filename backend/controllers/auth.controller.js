@@ -1,6 +1,8 @@
 import bcryptjs from 'bcryptjs';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
 
+dotenv.config();
 import { User } from '../models/user.model.js';
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 import { generateVerificationToken } from '../utils/generateVerificationToken.js';
@@ -126,11 +128,12 @@ export const forgotPassword = async (req, res) => {
 
     //Generate reset token
     const resetToken = crypto.randomBytes(20).toString('hex');
-    const resetTokenExpiresAt = DataTransfer.now() + 1 * 60 * 60 * 1000;
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpiredAt = resetTokenExpiresAt;
 
+    await user.save();
     //Send Email
     await sendPasswordResetEmail(
       user.email,
